@@ -111,7 +111,7 @@ const MobileTaskCard = ({
                     <Checkbox checked={isSelected} onCheckedChange={onSelect} className="border-border data-[state=checked]:bg-indigo-500" />
                     <div className="flex gap-2">
                         <Button size="sm" variant="ghost" onClick={onSave} className="h-8 w-8 p-0">
-                            <Save className="h-4 w-4" />
+                            <Check className="h-4 w-4" />
                         </Button>
                         <Button size="sm" variant="ghost" onClick={onCancel} className="h-8 w-8 p-0">
                             <X className="h-4 w-4" />
@@ -527,7 +527,7 @@ export const DataTableDemo = React.forwardRef<DataTableDemoHandle, DataTableDemo
         try {
             const response = await axios.get('/api/tasks');
             setData(response.data);
-            console.log('Data refreshed from server:', response.data);
+            // console.log('Data refreshed from server:', response.data);
         } catch (error) {
             console.error('Failed to refresh data:', error);
         }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -61,7 +62,10 @@ class TaskController extends Controller
             $sortOrder = 'desc';
         }
 
-        $tasks = $query->orderBy($sortBy, $sortOrder)->get();
+        $tasks = $query
+            ->with('user') // eager load to prevent N+1
+            ->orderBy($sortBy, $sortOrder)
+            ->get();
 
         return response()->json($tasks);
     }
@@ -90,22 +94,48 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         $this->authorize('view', $task);
-        return $task;
+        return response()->json($task);
     }
 
+    // public function update(Request $request, Task $task)
+    // {
+    //     $this->authorize('update', $task); // Make sure the user owns the task
+
+    //     $task->update($request->validate([
+    //         'title' => 'sometimes|required|string|max:255',
+    //         'description' => 'nullable|string',
+    //         'due_date' => 'sometimes|required|date', // ✅ like title & priority
+    //         'completed' => 'sometimes|required|boolean',
+    //         'priority' => 'sometimes|required|in:Low,Medium,High',
+    //     ]));
+
+    //     return response()->json($task);
+    // }
     public function update(Request $request, Task $task)
     {
-        $this->authorize('update', $task); // Make sure the user owns the task
+        $this->authorize('update', $task);
 
-        $task->update($request->validate([
+        // Your existing validation
+        $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
-            'completed' => 'sometimes|boolean', // ✅ Updated here
+            'due_date' => 'sometimes|required|date',
+            'completed' => 'sometimes|required|boolean',
             'priority' => 'sometimes|required|in:Low,Medium,High',
-        ]));
+        ]);
 
-        return response()->json($task);
+        // Store original completed status before update
+        $wasCompleted = $task->completed;
+
+        $task->update($validated);
+
+        // If task was marked as completed, update user's streak
+        if (isset($validated['completed']) && $validated['completed'] && !$wasCompleted) {
+            $user = Auth::user();
+            $user->updateStreak();
+        }
+
+        return response()->json($task->fresh());
     }
 
 
@@ -222,12 +252,13 @@ class TaskController extends Controller
         return response()->json($result);
     }
 
+    // Updated productivityStats method in TaskController.php
     public function productivityStats(Request $request)
     {
         $user = $request->user();
 
-        // count total tasks and completed tasks for this user
-        $totalTasks     = $user->tasks()->count();
+        // Count total tasks and completed tasks for this user
+        $totalTasks = $user->tasks()->count();
         $completedTasks = $user->tasks()->where('completed', true)->count();
 
         if ($totalTasks === 0) {
@@ -236,10 +267,14 @@ class TaskController extends Controller
             $productivity = round(($completedTasks / $totalTasks) * 100);
         }
 
-        // define target
+        // Today's tasks
+        $todayTasks = $user->tasks()->count();
+        $todayCompleted = $user->tasks()->where('completed', true)->count();
+
+        // Define target
         $target = 85;
 
-        // status label based on ranges
+        // Status label based on ranges
         if ($productivity >= $target) {
             $status = 'Excellent';
         } elseif ($productivity >= 70) {
@@ -250,16 +285,49 @@ class TaskController extends Controller
             $status = 'Needs Improvement';
         }
 
-        // compute how many % remaining
-        $remaining = $productivity >= $target
-            ? 'Target reached'
-            : ($target - $productivity) . '% more to reach target';
+        // Calculate remaining message
+        $remaining = $this->calculateRemaining($productivity, $target);
 
         return response()->json([
             'productivity' => $productivity,
-            'target'       => $target,
-            'status'       => $status,
-            'remaining'    => $remaining,
+            'target' => $target,
+            'status' => $status,
+            'remaining' => $remaining,
+            'streak' => $user->current_streak ?? 0,
+            'longestStreak' => $user->longest_streak ?? 0,
+            'todayCompleted' => $todayCompleted,
+            'todayTotal' => $todayTasks,
+            'streakStatus' => $user->streak_status ?? null,
+            'nextMilestone' => $user->next_milestone ?? null,
+        ]);
+    }
+
+    // Helper method for calculating remaining message
+    private function calculateRemaining($productivity, $target)
+    {
+        if ($productivity >= $target) {
+            return 'Target achieved! 🎯';
+        }
+
+        $remaining = $target - $productivity;
+        return "{$remaining}% to target";
+    }
+
+    // Update your task completion method to trigger streak update
+
+
+    // Alternative: If you have a separate complete task endpoint
+    public function complete(Task $task)
+    {
+        $task->update(['completed' => true]);
+
+        // Update user's streak
+        $newStreak = auth()->user()->updateStreak();
+
+        return response()->json([
+            'message' => 'Task completed successfully! 🎉',
+            'streak' => $newStreak,
+            'task' => $task->fresh()
         ]);
     }
 

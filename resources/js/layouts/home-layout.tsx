@@ -12,7 +12,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
     const { user, loading, fetchUser } = useAuth();
 
     useEffect(() => {
-        document.body.className = 'bg-gray-100 text-gray-800';
+        document.body.className = 'via-indigo-80/60 to-blue-80/60 bg-gradient-to-br from-slate-200';
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setDropdownOpen(false);
@@ -41,10 +41,10 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
 
     return (
         <>
-            <nav className="border-b border-indigo-50 bg-gradient-to-b from-white to-gray-50 shadow-md">
+            <nav className="relative bg-transparent">
                 <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center rounded-lg p-2 transition-colors hover:bg-indigo-50">
+                    <Link to="/" className="flex items-center rounded-lg p-2 transition-colors hover:bg-indigo-200/50">
                         <Header className="text-indigo-700">Taskly</Header>
                         <img src="/images/task-logo.png" alt="Logo" className="h-7 w-7" />
                     </Link>
@@ -65,11 +65,11 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setDropdownOpen((prev) => !prev)}
-                                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 hover:text-indigo-600"
+                                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-200/50 hover:text-indigo-600"
                             >
                                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000">
-                                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                                     <g id="SVGRepo_iconCarrier">
                                         {' '}
                                         <path
@@ -139,35 +139,35 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
 
                 {/* Mobile dropdown menu */}
                 {mobileMenuOpen && (
-                    <div className="animate-slideDown space-y-2 px-4 pb-4 md:hidden">
+                    <div className="animate-slideDown space-y-4 border-t border-indigo-100/50 bg-transparent px-4 pb-6 shadow-sm backdrop-blur-sm md:hidden">
                         {/* user row */}
-                        <div className="flex items-center gap-2 rounded-lg p-2">
+                        <div className="flex items-center gap-3 rounded-lg p-3 transition-all duration-200">
                             <div className="flex items-center justify-center rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-4 w-4" fill="#000000">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" className="h-5 w-5" fill="#000000">
                                     <path d="M8 1a3 3 0 100 6 3 3 0 000-6zM6.5 8C4.01 8 2 10.01 2 12.5v.5A2 2 0 004 15h8a2 2 0 002-2v-.5C14 10.01 11.99 8 9.5 8h-3z" />
                                 </svg>
                             </div>
-                            <span className="text-sm leading-none font-medium text-gray-700">{user.email}</span>
+                            <span className="text-sm font-medium">{user.email}</span>
                         </div>
 
                         {/* dashboard */}
                         <Link
                             to="/"
-                            className="flex items-center gap-2 rounded-lg p-2 text-sm font-medium transition duration-200 hover:bg-indigo-50 hover:text-indigo-600"
+                            className="flex items-center gap-3 rounded-lg p-3 transition-all duration-200 hover:bg-indigo-200/50 hover:text-indigo-600"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6" />
                             </svg>
-                            Dashboard
+                            <span className="text-sm font-medium">Dashboard</span>
                         </Link>
 
                         {/* logout */}
                         <form onSubmit={handleLogout}>
                             <button
                                 type="submit"
-                                className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm font-medium transition duration-200 hover:bg-red-100 hover:text-red-600"
+                                className="flex w-full items-center gap-3 rounded-lg p-3 text-sm font-medium transition-all duration-200 hover:bg-red-200/80 hover:text-red-600"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-9V5" />
                                 </svg>
                                 Logout
@@ -181,7 +181,6 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
             {children}
 
             {/* Footer */}
-            <footer className="mt-16 border-t bg-white py-6 text-center text-sm text-gray-500">&copy; 2025 TaskManager. All rights reserved.</footer>
         </>
     );
 }

@@ -3,11 +3,13 @@ import { DataTableDemo, type DataTableDemoHandle } from '@/components/ui/data-ta
 import DonutChart from '@/components/ui/donut-chart';
 import Header from '@/components/ui/nav-header';
 import BasicPie from '@/components/ui/piechart';
-import { Check, X as CloseIcon, RotateCcw, Trash2 } from 'lucide-react'; // example using lucide icons
+import ProductivityCard from '@/components/ui/productivity-card';
+import { Check, X as CloseIcon, PieChart, RotateCcw, Target, Trash2 } from 'lucide-react'; // example using lucide icons
 import React, { useEffect, useRef, useState } from 'react';
 import HomeLayout from '../layouts/home-layout';
 import axios from '../lib/axios';
 
+// Task interface
 interface Task {
     id: number;
     title: string;
@@ -17,11 +19,18 @@ interface Task {
     priority: 'Low' | 'Medium' | 'High';
 }
 
+//productivity interface
 interface ProductivityData {
     productivity: number;
     target: number;
     status: string;
     remaining: string;
+    streak: number; // Add this
+    longestStreak: number; // Add this
+    todayCompleted: number; // Add this
+    todayTotal: number; // Add this
+    streakStatus?: string; // Add this (optional)
+    nextMilestone?: string; // Add this (optional)
 }
 
 const Toast = ({
@@ -176,7 +185,6 @@ export default function Home() {
         e.preventDefault();
 
         if (submitting) return; // prevent double submit
-
         setSubmitting(true);
 
         try {
@@ -192,6 +200,12 @@ export default function Home() {
             setForm({ title: '', priority: '', due_date: '', details: '' });
 
             tableRef.current?.refreshData();
+
+            // Refresh analytics after creating a task
+            fetchStatusCounts();
+            fetchPriorityCounts();
+            fetchBarChartData();
+            fetchProductivity();
         } catch (err) {
             console.error('Failed to add task:', err);
             showToast('Failed to create task. Please try again.', 'error');
@@ -302,55 +316,29 @@ export default function Home() {
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {/* Productivity Card*/}
-                        <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                            <div className="mb-6 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600">
-                                        <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-800">Productivity</h4>
-                                        <p className="text-xs text-gray-500">This week</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-2xl font-bold text-gray-800">{percent}</div>
-                                </div>
-                            </div>
+                        <ProductivityCard data={data} />
 
-                            <div className="space-y-3">
-                                <div className="flex justify-between text-xs text-gray-600">
-                                    <span>Progress</span>
-                                    <span>Target: {target}</span>
-                                </div>
-                                <div className="h-2 w-full rounded-full bg-gray-200">
-                                    <div
-                                        className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 transition-all duration-1000"
-                                        style={{ width: percent }}
-                                    ></div>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600">{data?.status}</span>
-                                    <span className="text-xs text-gray-400">{data?.remaining}</span>
-                                </div>
-                            </div>
-                        </div>
                         {/* Donut Chart */}
                         <div
                             id="task-chart"
                             className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
                         >
-                            <h4 className="mb-2 text-sm font-medium text-gray-600">Task Completion Rate</h4>
+                            <div className="mb-2 flex flex-nowrap items-center gap-2">
+                                <Target className="h-5 w-5 text-indigo-600" />
+                                <h4 className="text-sm font-medium whitespace-nowrap text-gray-600">Task Status</h4>
+                            </div>
                             <DonutChart statusCounts={statusCounts} />
                         </div>
+
                         {/* Pie Chart */}
                         <div
                             id="task-chart"
                             className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-xl md:col-span-2 lg:col-span-1"
                         >
-                            <h4 className="mb-2 text-sm font-medium text-gray-600">Tasks by Priority</h4>
+                            <div className="mb-2 flex flex-nowrap items-center gap-2">
+                                <PieChart className="h-5 w-5 text-indigo-600" />
+                                <h4 className="mb-2 text-sm font-medium text-gray-600">Tasks by Priority</h4>
+                            </div>
                             <BasicPie data={priorityCounts} />
                         </div>
                     </div>

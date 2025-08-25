@@ -19,6 +19,10 @@ Route::get('/test-auth', function () {
     return response()->json(['auth' => Auth::check(), 'user' => Auth::user()]);
 });
 
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
+
 Route::middleware(['web'])->group(function () {
     // Public API endpoints for login and registration
     Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -31,5 +35,3 @@ Route::middleware(['web'])->group(function () {
         })->where('any', '.*');
     });
 });
-
-

@@ -950,3 +950,82 @@ export function DataTableDemo() {
 }
 
 export default DataTableDemo;
+// import axios from '../lib/axios';
+
+// const ExceptionTester = () => {
+//     const testEndpoint = async (endpoint: string, data?: any) => {
+//         try {
+//             const response = data ? await axios.post(endpoint, data) : await axios.get(endpoint);
+//             console.log('✅ Success:', response.data);
+//             alert(`Success: ${JSON.stringify(response.data)}`);
+//         } catch (error: any) {
+//             console.log('❌ Error:', error.response?.data);
+//             alert(`Error ${error.response?.status}: ${JSON.stringify(error.response?.data, null, 2)}`);
+//         }
+//     };
+
+//     return (
+//         <div className="space-y-4 p-6">
+//             <h2 className="text-2xl font-bold">Exception Handler Testing</h2>
+
+//             <div className="grid grid-cols-2 gap-4">
+//                 <button onClick={() => testEndpoint('/api/test/validation', {})} className="rounded bg-red-500 p-2 text-white">
+//                     Test Validation Error (422)
+//                 </button>
+
+//                 <button onClick={() => testEndpoint('/api/test/auth')} className="rounded bg-yellow-500 p-2 text-white">
+//                     Test Auth Error (401)
+//                 </button>
+
+//                 <button onClick={() => testEndpoint('/api/test/forbidden')} className="rounded bg-orange-500 p-2 text-white">
+//                     Test Forbidden (403)
+//                 </button>
+
+//                 <button onClick={() => testEndpoint('/api/test/not-found')} className="rounded bg-purple-500 p-2 text-white">
+//                     Test Not Found (404)
+//                 </button>
+
+//                 <button onClick={() => testEndpoint('/api/test/server-error')} className="rounded bg-gray-500 p-2 text-white">
+//                     Test Server Error (500)
+//                 </button>
+
+//                 <button
+//                     onClick={() => {
+//                         // Test rate limiting by making multiple requests
+//                         for (let i = 0; i < 5; i++) {
+//                             setTimeout(() => testEndpoint('/api/test/throttle'), i * 100);
+//                         }
+//                     }}
+//                     className="rounded bg-blue-500 p-2 text-white"
+//                 >
+//                     Test Rate Limiting (429)
+//                 </button>
+
+//                 <button
+//                     onClick={() =>
+//                         testEndpoint('/api/tasks', {
+//                             title: '',
+//                             priority: 'InvalidPriority',
+//                         })
+//                     }
+//                     className="rounded bg-green-500 p-2 text-white"
+//                 >
+//                     Test Real Validation (Tasks)
+//                 </button>
+
+//                 <button onClick={() => testEndpoint('/api/user')} className="rounded bg-indigo-500 p-2 text-white">
+//                     Test Real Auth (User)
+//                 </button>
+//             </div>
+
+//             <div className="mt-6 rounded bg-gray-100 p-4">
+//                 <p className="text-sm text-gray-600">
+//                     Open browser console to see detailed error responses. Each button tests different exception types to verify your app.php exception
+//                     handling.
+//                 </p>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default ExceptionTester;

@@ -1,13 +1,13 @@
 // src/guard/GuestGuard.tsx
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext'; // ✅ updated import
 
 export default function GuestGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  if (loading) return null; // or a loading spinner
+    if (loading) return null; // or a loading spinner
 
-  if (user) return <Navigate to="/home" replace />;
+    if (user) return <Navigate to="/home" replace />;
 
-  return <>{children}</>;
+    return <>{children}</>;
 }

@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
-
+        $middleware->statefulApi();
         // ✅ Sanctum: add stateful middleware to web group
         $middleware->web(append: [
             EnsureFrontendRequestsAreStateful::class, // 👈 Required for SPA cookie auth
